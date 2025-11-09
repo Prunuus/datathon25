@@ -1,0 +1,4 @@
+Flask
+requests
+torch==2.2.1
+numpy
