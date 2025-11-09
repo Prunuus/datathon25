@@ -4,7 +4,8 @@ from enum import Enum
 from typing import Optional
 
 EMPTY = 0
-AGENT = 1
+AGENT1 = 1
+AGENT2 = 2
 
 """
 GameBoard class manages the game board.
@@ -45,7 +46,8 @@ class GameBoard:
         return random.choice(empty_cells)
 
     def __str__(self) -> str:
-        chars = {EMPTY: '.', AGENT: 'A'}
+        # Customize letters per agent: Agent1='M' (model), Agent2='C' (comp/other)
+        chars = {EMPTY: '.', AGENT1: 'M', AGENT2: 'C'}
         board_str = ""
         for y in range(self.height):
             for x in range(self.width):
@@ -81,9 +83,11 @@ class Agent:
         self.alive = True
         self.length = 2  # Initial length of the trail
         self.boosts_remaining = 3  # Each agent gets 3 speed boosts
+        # Choose board value per agent for display and collision
+        self._board_val = AGENT1 if agent_id == 1 else AGENT2
 
-        self.board.set_cell_state(start_pos, AGENT)
-        self.board.set_cell_state(second, AGENT)
+        self.board.set_cell_state(start_pos, self._board_val)
+        self.board.set_cell_state(second, self._board_val)
     
     def is_head(self, position: tuple[int, int]) -> bool:
         return position == self.trail[-1]
@@ -131,8 +135,8 @@ class Agent:
             
             self.direction = direction
             
-            # Handle collision with agent trail
-            if cell_state == AGENT:
+            # Handle collision with any agent trail
+            if cell_state != EMPTY:
                 # Check if it's our own trail (any part of our trail)
                 if new_head in self.trail:
                     # Hit our own trail
@@ -156,7 +160,7 @@ class Agent:
             # Add new head, trail keeps growing
             self.trail.append(new_head)
             self.length += 1
-            self.board.set_cell_state(new_head, AGENT)
+            self.board.set_cell_state(new_head, self._board_val)
         
         return True
 
